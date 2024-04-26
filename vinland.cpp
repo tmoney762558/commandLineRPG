@@ -55,6 +55,7 @@ public:
 
 std::string characterCreation();
 void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[]);
+void playerAttack(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, bool &validSel);
 void enemyTurn(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3);
 void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3);
 void encounter(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[]);
@@ -215,141 +216,8 @@ void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &en
         switch (selection)
         {
         case 1:
-            std::cout << "Target\n";
-            std::cout << "1) " << enemy1.name << '\n';
-            std::cout << "(HP: " << enemy1.hp << ")\n";
-            if (enemy2.alive)
-            {
-                std::cout << "2) " << enemy2.name << '\n';
-                std::cout << "(HP: " << enemy2.hp << ")\n";
-            }
-            if (enemy3.alive)
-            {
-                std::cout << "3) " << enemy3.name << '\n';
-                std::cout << "(HP: " << enemy3.hp << ")\n";
-            }
-            if (enemy4.alive)
-            {
-                std::cout << "4) " << enemy4.name << '\n';
-                std::cout << "(HP: " << enemy4.hp << ")\n";
-            }
-
-            std::cout << "Which enemy would you like to target?\n";
-            std::cin >> selection;
-            // SWITCH 2
-            switch (selection)
-            {
-            // CASE 1 FOR SWITCH 2
-            case 1:
-                std::cout << mc.name << " attacked " << enemy1.name << "!\n";
-                enemy1.hp -= (mc.atk - enemy1.def);
-                if (enemy1.hp <= 0)
-                {
-                    std::cout << enemy1.name << " was defeated!\n";
-                    enemy1.alive = false;
-                    if (enemy2.alive)
-                    {
-                        enemy1 = enemy2;
-                        enemy2 = enemy3;
-                        enemy3 = enemy4;
-                        enemy4.alive = false;
-                    }
-                }
-                else
-                {
-                    std::cout << enemy1.name << " has " << enemy1.hp << " HP remaining!\n";
-                }
-                validSel = true;
-                break;
-            // CASE 2 FOR SWITCH 2
-            case 2:
-                if (enemy2.alive)
-                {
-                    std::cout << mc.name << " attacked " << enemy2.name << "!\n";
-                    enemy2.hp -= (mc.atk - enemy2.def);
-                    if (enemy2.hp <= 0)
-                    {
-                        std::cout << enemy2.name << " was defeated!\n";
-                        enemy2.alive = false;
-                        if (enemy3.alive)
-                        {
-                            enemy2 = enemy3;
-                            enemy3 = enemy4;
-                            enemy4.alive = false;
-                        }
-                    }
-                    else
-                    {
-                        std::cout << enemy2.name << " has " << enemy2.hp << " HP remaining!\n";
-                    }
-                    validSel = true;
-                }
-                else
-                {
-                    std::cout << "Invalid target!\n";
-                }
-                break;
-            // CASE 3 FOR SWITCH 2
-            case 3:
-                if (enemy3.alive)
-                {
-                    std::cout << mc.name << " attacked " << enemy3.name << "!\n";
-                    enemy3.hp -= (mc.atk - enemy3.def);
-                    if (enemy2.hp <= 0)
-                    {
-                        std::cout << enemy3.name << " was defeated!\n";
-                        enemy3.alive = false;
-                        if (enemy4.alive)
-                        {
-                            enemy3 = enemy4;
-                            enemy4.alive = false;
-                        }
-                    }
-                    else
-                    {
-                        std::cout << enemy3.name << " has " << enemy3.hp << " HP remaining!\n";
-                    }
-                    validSel = true;
-                }
-                else
-                {
-                    std::cout << "Invalid target!\n";
-                }
-                break;
-            // BREAK
-            // CASE 4 FOR SWITCH 2
-            case 4:
-                if (enemy4.alive)
-                {
-                    std::cout << mc.name << " attacked " << enemy4.name << "!\n";
-                    enemy4.hp -= (mc.atk - enemy4.def);
-                    if (enemy4.hp <= 0)
-                    {
-                        std::cout << enemy4.name << " was defeated!\n";
-                        enemy4.alive = false;
-                    }
-                    else
-                    {
-                        std::cout << enemy4.name << " has " << enemy4.hp << " HP remaining!\n";
-                    }
-                    validSel = true;
-                }
-                else
-                {
-                    std::cout << "Invalid target!\n";
-                }
-                break;
-                // BREAK
-            default:
-            {
-                std::cout << "Invalid target!\n";
-                break;
-                // BREAK
-            }
-            }
+            playerAttack(mc, enemy1, enemy2, enemy3, enemy4, validSel);
             break;
-            // BREAK FOR SWITCH 1
-        // CASE 2 FOR SWITCH 1
         case 2:
             std::cout << "Skills\n";
             for (int i = 0; i < mc.skillsHeld; i++)
@@ -382,12 +250,149 @@ void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &en
         }
     }
 }
+void playerAttack(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, bool &validSel)
+{
+    int selection;
+
+    std::cout << "[Target]\n";
+    std::cout << "1) " << enemy1.name << '\n';
+    std::cout << "(HP: " << enemy1.hp << ")\n";
+    if (enemy2.alive)
+    {
+        std::cout << "2) " << enemy2.name << '\n';
+        std::cout << "(HP: " << enemy2.hp << ")\n";
+    }
+    if (enemy3.alive)
+    {
+        std::cout << "3) " << enemy3.name << '\n';
+        std::cout << "(HP: " << enemy3.hp << ")\n";
+    }
+    if (enemy4.alive)
+    {
+        std::cout << "4) " << enemy4.name << '\n';
+        std::cout << "(HP: " << enemy4.hp << ")\n";
+    }
+
+    std::cout << "Which enemy would you like to target?\n";
+    std::cin >> selection;
+    // SWITCH 2
+    switch (selection)
+    {
+    // CASE 1 FOR SWITCH 2
+    case 1:
+        std::cout << mc.name << " attacked " << enemy1.name << "!\n";
+        enemy1.hp -= (mc.atk - enemy1.def);
+        if (enemy1.hp <= 0)
+        {
+            std::cout << enemy1.name << " was defeated!\n";
+            enemy1.alive = false;
+            if (enemy2.alive)
+            {
+                enemy1 = enemy2;
+                enemy2 = enemy3;
+                enemy3 = enemy4;
+                enemy4.alive = false;
+            }
+        }
+        else
+        {
+            std::cout << enemy1.name << " has " << enemy1.hp << " HP remaining!\n";
+        }
+        validSel = true;
+        break;
+    // CASE 2 FOR SWITCH 2
+    case 2:
+        if (enemy2.alive)
+        {
+            std::cout << mc.name << " attacked " << enemy2.name << "!\n";
+            enemy2.hp -= (mc.atk - enemy2.def);
+            if (enemy2.hp <= 0)
+            {
+                std::cout << enemy2.name << " was defeated!\n";
+                enemy2.alive = false;
+                if (enemy3.alive)
+                {
+                    enemy2 = enemy3;
+                    enemy3 = enemy4;
+                    enemy4.alive = false;
+                }
+            }
+            else
+            {
+                std::cout << enemy2.name << " has " << enemy2.hp << " HP remaining!\n";
+            }
+            validSel = true;
+        }
+        else
+        {
+            std::cout << "Invalid target!\n";
+        }
+        break;
+    // CASE 3 FOR SWITCH 2
+    case 3:
+        if (enemy3.alive)
+        {
+            std::cout << mc.name << " attacked " << enemy3.name << "!\n";
+            enemy3.hp -= (mc.atk - enemy3.def);
+            if (enemy2.hp <= 0)
+            {
+                std::cout << enemy3.name << " was defeated!\n";
+                enemy3.alive = false;
+                if (enemy4.alive)
+                {
+                    enemy3 = enemy4;
+                    enemy4.alive = false;
+                }
+            }
+            else
+            {
+                std::cout << enemy3.name << " has " << enemy3.hp << " HP remaining!\n";
+            }
+            validSel = true;
+        }
+        else
+        {
+            std::cout << "Invalid target!\n";
+        }
+        break;
+    // BREAK
+    // CASE 4 FOR SWITCH 2
+    case 4:
+        if (enemy4.alive)
+        {
+            std::cout << mc.name << " attacked " << enemy4.name << "!\n";
+            enemy4.hp -= (mc.atk - enemy4.def);
+            if (enemy4.hp <= 0)
+            {
+                std::cout << enemy4.name << " was defeated!\n";
+                enemy4.alive = false;
+            }
+            else
+            {
+                std::cout << enemy4.name << " has " << enemy4.hp << " HP remaining!\n";
+            }
+            validSel = true;
+        }
+        else
+        {
+            std::cout << "Invalid target!\n";
+        }
+        break;
+        // BREAK
+    default:
+    {
+        std::cout << "Invalid target!\n";
+        break;
+        // BREAK
+    }
+    }
+}
 void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3)
 {
     int dmgDelt;
     if (mc.alive == false)
     {
-        std::cout << "Error: Defeat at the start of enemy turn.\n";
+        std::cout << "Defeat...\n";
         return;
     }
     if (currentEnemy.alive)
