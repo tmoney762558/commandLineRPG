@@ -16,6 +16,7 @@ public:
     std::string skillAffinity[10];
     std::string weakness;
     bool alive = false;
+    bool guarding = false;
 };
 
 class mainCharacter : public baseCharacter
@@ -65,27 +66,31 @@ void logic();
 
 int main()
 {
+    // Items
     std::string items[20];
-    mainCharacter mc;
-    ally ally1;
-    ally ally2;
-    ally ally3;
-    enemies enemy2;
-    enemies enemy3;
-    enemies enemy4;
+
+    // Enemies:
+
     // Slime
     enemies slime;
     slime.alive = true;
     slime.name = "Slime";
     slime.hp = 6;
-    slime.atk = 5;
-    enemies slime2 = slime;
-    enemies slime3 = slime;
-    enemies slime4 = slime;
+    slime.atk = 10;
+
+    // Battle Participants
+    mainCharacter mc;
+    ally ally1;
+    ally ally2;
+    ally ally3;
+    enemies enemy1 = slime;
+    enemies enemy2 = slime;
+    enemies enemy3 = slime;
+    enemies enemy4 = slime;
 
     mc.name = characterCreation();
     story();
-    encounter(mc, ally1, ally2, ally3, slime, slime2, slime3, slime4, items);
+    encounter(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4, items); // Encounter is called
 
     return 0;
 }
@@ -136,6 +141,7 @@ void encounter(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies
 {
     int numOfAllies = 1;  // Number of allies in an encounter
     int numOfEnemies = 1; // Number of enemies in an encounter
+    bool guarding;
 
     std::cout << "An enemy appears!\n";
     std::cout << "Battle Start!\n";
@@ -200,7 +206,6 @@ void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &en
 
     int selection;
     bool validSel = false;
-    bool guarding = false;
 
     std::cout << "Your turn!\n";
     validSel = false;
@@ -228,8 +233,8 @@ void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &en
             // BREAK
         // CASE 3 FOR SWITCH 1
         case 3:
-            std::cout << mc.name << "is guarding!\n";
-            guarding = true;
+            std::cout << mc.name << " is guarding!\n";
+            mc.guarding = true;
             validSel = true;
             break;
             // BREAK
@@ -418,6 +423,10 @@ void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &al
                     {
                         dmgDelt = (currentEnemy.atk - mc.def);
                     }
+                    if (mc.guarding && dmgDelt != 1)
+                    {
+                        dmgDelt /= 2;
+                    }
                     mc.hp -= (dmgDelt);
                     std::cout << currentEnemy.name << " attacked " << mc.name << " for " << dmgDelt << " damage!\n";
                     if (mc.hp <= 0)
@@ -440,6 +449,10 @@ void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &al
                         {
                             dmgDelt = (currentEnemy.atk - ally1.def);
                         }
+                        if (mc.guarding && dmgDelt != 1)
+                        {
+                            dmgDelt /= 2;
+                        }
                         ally1.hp -= dmgDelt;
                         std::cout << currentEnemy.name << " attacked " << ally1.name << " for " << dmgDelt << " damage!\n";
                         if (ally1.hp <= 0)
@@ -461,6 +474,10 @@ void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &al
                         {
                             dmgDelt = (currentEnemy.atk - ally2.def);
                         }
+                        if (mc.guarding && dmgDelt != 1)
+                        {
+                            dmgDelt /= 2;
+                        }
                         ally2.hp -= dmgDelt;
                         std::cout << currentEnemy.name << " attacked " << ally2.name << " for " << dmgDelt << " damage!\n";
                         if (ally2.hp <= 0)
@@ -481,6 +498,10 @@ void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &al
                         else
                         {
                             dmgDelt = (currentEnemy.atk - ally3.def);
+                        }
+                        if (mc.guarding && dmgDelt != 1)
+                        {
+                            dmgDelt /= 2;
                         }
                         ally3.hp -= dmgDelt;
                         std::cout << currentEnemy.name << " attacked " << ally3.name << " for " << dmgDelt << " damage!\n";
