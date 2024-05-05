@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stack>
 
-class baseCharacter
+class baseCharacter // Base character class
 {
 public:
     std::string name = "NULL";
@@ -19,7 +19,7 @@ public:
     bool guarding = false;
 };
 
-class mainCharacter : public baseCharacter
+class mainCharacter : public baseCharacter // Main character class
 {
 public:
     mainCharacter()
@@ -30,17 +30,17 @@ public:
         atk = 5;
         def = 5;
         mgk = 5;
-        weakness = "light\n";
+        weakness = "curse";
         alive = true;
     }
 };
 
-class ally : public baseCharacter
+class ally : public baseCharacter // Ally class
 {
 public:
 };
 
-class enemies : public baseCharacter
+class enemies : public baseCharacter // Enemy class
 {
 public:
     enemies()
@@ -55,14 +55,13 @@ public:
 };
 
 std::string characterCreation();
-void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[]);
+void playerTurn(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[]);
 void playerAttack(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, bool &validSel);
 void enemyTurn(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3);
 void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3);
 void encounter(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[]);
 void story();
-void printCombatants(mainCharacter mc, ally ally1, ally ally2, ally ally3, enemies enemy1, enemies enemy2, enemies enemy3, enemies enemy4);
-void logic();
+void examineCombatants(mainCharacter mc, ally ally1, ally ally2, ally ally3, enemies enemy1, enemies enemy2, enemies enemy3, enemies enemy4);
 
 int main()
 {
@@ -75,8 +74,8 @@ int main()
     enemies slime;
     slime.alive = true;
     slime.name = "Slime";
-    slime.hp = 6;
-    slime.atk = 10;
+    slime.hp = 5;
+    slime.atk = 1;
 
     // Battle Participants
     mainCharacter mc;
@@ -95,7 +94,7 @@ int main()
     return 0;
 }
 
-std::string characterCreation()
+std::string characterCreation() // Character creation function
 {
     std::string name;
 
@@ -124,6 +123,7 @@ void countBattleParticipants(int &numOfAllies, int &numOfEnemies, ally ally1, al
     {
         numOfAllies++;
     }
+
     if (enemy4.alive) // Block of if statements to count how many enemies we have
     {
         numOfEnemies++;
@@ -141,7 +141,6 @@ void encounter(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies
 {
     int numOfAllies = 1;  // Number of allies in an encounter
     int numOfEnemies = 1; // Number of enemies in an encounter
-    bool guarding;
 
     std::cout << "An enemy appears!\n";
     std::cout << "Battle Start!\n";
@@ -157,25 +156,24 @@ void encounter(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies
             case 1:
                 if (mc.alive)
                 {
-                    playerTurn(mc, enemy1, enemy2, enemy3, enemy4, items);
+                    playerTurn(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4, items);
                 }
                 break;
             case 2:
                 if (ally1.alive)
                 {
-                    playerTurn(mc, enemy1, enemy2, enemy3, enemy4, items);
+                    playerTurn(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4, items);
                 }
                 break;
             case 3:
                 if (ally2.alive)
                     ;
-                playerTurn(mc, enemy1, enemy2, enemy3, enemy4, items);
+                    playerTurn(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4, items);
                 break;
             case 4:
                 if (ally3.alive)
                 {
-                    playerTurn(mc, enemy1, enemy2, enemy3, enemy4, items);
-                }
+                    playerTurn(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4, items);                }
                 break;
             }
         }
@@ -200,7 +198,7 @@ void encounter(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies
         }
     }
 }
-void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[])
+void playerTurn(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, std::string items[])
 {
     int dmgDelt;
 
@@ -216,6 +214,7 @@ void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &en
         std::cout << "2) Skill\n";
         std::cout << "3) Guard\n";
         std::cout << "4) Items\n";
+        std::cout << "5) Examine\n";
         std::cin >> selection;
 
         switch (selection)
@@ -240,13 +239,18 @@ void playerTurn(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &en
             // BREAK
         // CASE 4 FOR SWITCH 1
         case 4:
-            std::cout << "Items\n";
+            std::cout << "[Items]\n";
             for (int i = 0; i < 20 / sizeof(items[0]); i++)
             {
                 std::cout << items[i];
             }
             break;
             // BREAK
+        // CASE 5 FOR SWITCH 1
+        case 5:
+            examineCombatants(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4);
+            break;
+        // BREAK
         // DEFAULT CASE FOR SWITCH 1
         default:
             std::cout << "Invalid selection!\n";
@@ -259,7 +263,7 @@ void playerAttack(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &
 {
     int selection;
 
-    std::cout << "[Target]\n";
+    std::cout << "[TARGET]\n";
     std::cout << "1) " << enemy1.name << '\n';
     std::cout << "(HP: " << enemy1.hp << ")\n";
     if (enemy2.alive)
@@ -277,7 +281,6 @@ void playerAttack(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &
         std::cout << "4) " << enemy4.name << '\n';
         std::cout << "(HP: " << enemy4.hp << ")\n";
     }
-
     std::cout << "Which enemy would you like to target?\n";
     std::cin >> selection;
     // SWITCH 2
@@ -529,4 +532,35 @@ void story()
     std::cout << "You wake up in an unfamiliar place.\n";
     std::cout << "Where am I?\n";
     std::cout << "Looking around, you see something approaching\n";
+}
+void examineCombatants(mainCharacter mc, ally ally1, ally ally2, ally ally3, enemies enemy1, enemies enemy2, enemies enemy3, enemies enemy4)
+{
+    std::cout << "[Examine]\n";
+    std::cout << '\n';
+    std::cout << "[Allies]\n";
+    std::cout << "1) " << mc.name << '\n';
+    std::cout << "2) " << ally1.name << '\n';
+    std::cout << "3) " << ally2.name << '\n';
+    std::cout << "4) " << ally3.name << '\n';
+    std::cout << '\n';
+    
+    std::cout << "[Enemies]\n";
+    std::cout << "1) " << enemy1.name << '\n';
+    std::cout << "(HP: " << enemy1.hp << ")\n";
+
+    if (enemy2.alive)
+    {
+        std::cout << "2) " << enemy2.name << '\n';
+        std::cout << "(HP: " << enemy2.hp << ")\n";
+    }
+    if (enemy3.alive)
+    {
+        std::cout << "3) " << enemy3.name << '\n';
+        std::cout << "(HP: " << enemy3.hp << ")\n";
+    }
+    if (enemy4.alive)
+    {
+        std::cout << "4) " << enemy4.name << '\n';
+        std::cout << "(HP: " << enemy4.hp << ")\n";
+    }
 }
