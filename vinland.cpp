@@ -13,6 +13,20 @@ struct skills
     int spCost;
     std::string affinity;
     std::string statusEffect;
+
+    skills()
+    {
+    }
+
+    skills(std::string Name, std::string Type, int Dmg, int SpCost, std::string Affinity, std::string StatusEffect)
+    {
+        name = Name;
+        type = Type;
+        dmg = Dmg;
+        spCost = SpCost;
+        affinity = Affinity;
+        statusEffect = StatusEffect;
+    }
 };
 
 struct items
@@ -26,19 +40,37 @@ class baseCharacter // Base character class
 public:
     std::string name = "NULL";
     int level;
-    int maxHP = 0;
-    int hp = 0;
-    int sp = 0;
+    int maxHP;
+    int hp;
+    int sp;
     int atk;
     int def;
     int mgk;
     int skillsHeld;
     skills skills[10];
     std::string weakness;
-    bool alive = false;
-    bool guarding = false;
+    bool alive;
+    bool guarding;
     std::string status;
-    int recovery = 0;
+    int recovery;
+
+    baseCharacter()
+    {
+        std::string name = "NULL";
+        int level = 1;
+        int maxHP = 1;
+        int hp = 1;
+        int sp = 1;
+        int atk = 1;
+        int def = 1;
+        int mgk = 1;
+        int skillsHeld = 0;
+        std::string weakness = "fire";
+        bool alive = false;
+        bool guarding = false;
+        std::string status;
+        int recovery = 0;
+    }
 };
 
 class mainCharacter : public baseCharacter // Main character class
@@ -46,12 +78,12 @@ class mainCharacter : public baseCharacter // Main character class
 public:
     mainCharacter()
     {
-        name;
+        name = "NULL";
         level = 1;
-        hp = 50;
-        atk = 10;
-        def = 5;
-        mgk = 5;
+        hp = 15;
+        atk = 7;
+        def = 3;
+        mgk = 3;
         weakness = "curse";
         alive = true;
     }
@@ -60,6 +92,22 @@ public:
 class ally : public baseCharacter // Ally class
 {
 public:
+    ally()
+    {
+        name;
+        level = 1;
+        hp = 50;
+        atk = 10;
+        def = 5;
+        mgk = 5;
+        weakness = "fire";
+        alive = false;
+    }
+
+    ally(int Level)
+    {
+        level = Level;
+    }
 };
 
 class enemies : public baseCharacter // Enemy class
@@ -123,13 +171,7 @@ int main()
     minotaur.atk = 0;
 
     // Skills
-    skills agi;
-    agi.affinity = "fire";
-    agi.dmg = 10;
-    agi.name = "Agi";
-    agi.spCost = 3;
-    agi.statusEffect = "burn";
-    agi.type = "atk";
+    skills agi = skills("Agi", "mgk", 5, 3, "fire", "burn");
 
     mc.skills[0] = agi;
     mc.skillsHeld = 1;
@@ -156,6 +198,7 @@ std::string characterCreation() // Character creation function
 
     return name;
 }
+
 void countBattleParticipants(int &numOfAllies, int &numOfEnemies, mainCharacter mc, ally ally1, ally ally2, ally ally3, enemies enemy2, enemies enemy3, enemies enemy4) // Function to increase the number of battle participants excluding enemy1 and the mc (They are assumed to be in the battle already)
 {
     if (ally3.alive) // Block of if statements to count how many allies we have
@@ -381,6 +424,7 @@ void enemyAttack(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &al
 }
 void enemyTurn(enemies &currentEnemy, mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3)
 {
+    currentEnemy.status = "None";
     enemyAttack(currentEnemy, mc, ally1, ally2, ally3);
 }
 void story()
@@ -464,7 +508,6 @@ void playerTurn(mainCharacter &mc, ally &ally1, ally &ally2, ally &ally3, enemie
         case 5:
             examineCombatants(mc, ally1, ally2, ally3, enemy1, enemy2, enemy3, enemy4);
             break;
-
         default:
             std::cout << "Invalid selection!\n";
             break;
@@ -593,7 +636,7 @@ void skillTarget(mainCharacter &mc, enemies &enemy1, enemies &enemy2, enemies &e
             if (enemy1.alive)
             {
                 playerSkill(mc.skills[selection - 1], mc, enemy1, enemy1, enemy2, enemy3, enemy4, ally1, ally2, ally3, itemList);
-                validSel = true;            
+                validSel = true;
             }
             break;
         case 2:
@@ -642,7 +685,7 @@ void playerAttack(mainCharacter &mc, enemies &selectedEnemy, enemies &enemy1, en
     int dmgDelt = 0;
 
     dmgDelt = mc.atk - selectedEnemy.def;
-    std::cout << mc.name << " attacked " << selectedEnemy.name << "!\n";
+    std::cout << mc.name << " attacked " << selectedEnemy.name << " for " << dmgDelt << " damage!\n";
     selectedEnemy.hp -= dmgDelt;
 
     if (selectedEnemy.hp <= 0)
@@ -686,6 +729,10 @@ void playerAttack(mainCharacter &mc, enemies &selectedEnemy, enemies &enemy1, en
             enemy4.alive = false;
         }
     }
+    else
+    {
+        std::cout << selectedEnemy.name << " has " << selectedEnemy.hp << " HP remaining!\n";
+    }
 }
 void playerSkill(skills skill, mainCharacter &mc, enemies &selectedEnemy, enemies &enemy1, enemies &enemy2, enemies &enemy3, enemies &enemy4, ally &ally1, ally &ally2, ally &ally3, items itemList[])
 {
@@ -693,6 +740,7 @@ void playerSkill(skills skill, mainCharacter &mc, enemies &selectedEnemy, enemie
 
     dmgDelt = (skill.dmg + (mc.mgk * 1.2)) - selectedEnemy.def;
     std::cout << mc.name << " used " << skill.name << " on " << selectedEnemy.name << "!\n";
+    std::cout << mc.name << " delt " << dmgDelt << " damage!\n";
     selectedEnemy.hp -= dmgDelt;
 
     if (selectedEnemy.hp <= 0)
@@ -741,7 +789,7 @@ void playerSkill(skills skill, mainCharacter &mc, enemies &selectedEnemy, enemie
     {
         std::cout << selectedEnemy.name << " has " << selectedEnemy.hp << " HP remaining!\n";
     }
-    
+
     if (skill.affinity == selectedEnemy.weakness && selectedEnemy.status != "downed")
     {
         selectedEnemy.status = "downed";
