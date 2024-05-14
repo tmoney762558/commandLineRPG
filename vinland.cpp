@@ -7,6 +7,7 @@
 // 5/10/24: Cleaned up a bit of the code and began working on some constructors.
 // 5/11/24: Put enemies into an array, broke one more mechanic
 // 5/13/24: Minor work on cleaning up code, sp management
+// 5/14/24: More code cleanup, fully implementing sp mechanic (WIP)
 
 struct skills
 {
