@@ -6,8 +6,9 @@
 // 5/9/24: Implemented skills, their types, and "One More" mechanics. Also fixed and redid the enemy removal system to handle multi-target skills (Not yet implemented)
 // 5/10/24: Cleaned up a bit of the code and began working on some constructors.
 // 5/11/24: Put enemies into an array, broke one more mechanic
+// 5/12/24: Fixed one more mechanic
 // 5/13/24: Minor work on cleaning up code, sp management
-// 5/14/24: More code cleanup, fully implementing sp mechanic (WIP)
+// 5/1724: (WIP) Implement other allies and put mc into the same array as them
 
 struct skills
 {
@@ -157,7 +158,6 @@ void story();
 
 // Battle Functions
 void encounter(mainCharacter mc, ally allies[], enemy enemies[], items itemList[]);
-void countBattleParticipants(int &numOfAllies, int &enemyNum, mainCharacter mc, ally allies, enemy enemies[]);
 
 // Enemy Turn
 void enemyTurn(enemy &currentEnemy, mainCharacter &mc, ally allies[]);
@@ -220,24 +220,6 @@ std::string characterCreation() // Character creation function
 
     return name;
 }
-
-void countBattleParticipants(int &allyNum, int &enemyNum, mainCharacter mc, ally allies[], enemy enemies[]) // Function to increase the number of battle participants excluding enemies[0] and the mc (They are assumed to be in the battle already)
-{
-    for (int i = 0; i < 3; i++)
-    {
-        if (allies[i].alive)
-        {
-            allyNum++;
-        }
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        if (enemies[i].alive)
-        {
-            enemyNum++;
-        }
-    }
-}
 void encounter(mainCharacter mc, ally allies[], enemy enemies[], items itemList[])
 {
     int numOfAllies = 1; // Number of allies in an encounter
@@ -250,8 +232,6 @@ void encounter(mainCharacter mc, ally allies[], enemy enemies[], items itemList[
         std::cerr << "MC or Enemy 1 is not alive!\n";
         return;
     }
-
-    countBattleParticipants(numOfAllies, enemyNum, mc, allies, enemies);
 
     while (mc.alive && enemies[0].alive)
     {
@@ -470,31 +450,29 @@ void examineCombatants(mainCharacter mc, ally allies[], enemy enemies[])
     std::cout << "[Examine]\n\n";
     std::cout << "[Allies]\n";
     std::cout << "1) " << mc.name << '\n';
-    std::cout << "2) " << allies[0].name << '\n';
-    std::cout << "3) " << allies[1].name << '\n';
-    std::cout << "4) " << allies[2].name << '\n';
-    std::cout << '\n';
+    std::cout << "(HP: " << mc.hp << ")\n";
+    std::cout << "(SP: " << mc.sp << ")\n";
 
-    std::cout << "[Enemies]\n";
-    std::cout << "1) " << enemies[0].name << '\n';
-    std::cout << "(HP: " << enemies[0].hp << ")\n";
+    for (int i = 0; i < 3; i++)
+    {
+        if (allies[i].alive)
+        {
+            std::cout << i << ") " << allies[i].name << '\n';
+            std::cout << "(HP: " << allies[i].hp << ")\n";
+            std::cout << "(SP: " << allies[i].sp << ")\n";            
+        }
+    }
+    std::cout << '\n' << "[Enemies]\n";
 
-    if (enemies[1].alive)
+    for (int i = 0; i < 4; i++)
     {
-        std::cout << "2) " << enemies[1].name << '\n';
-        std::cout << "(HP: " << enemies[1].hp << ")\n";
+        if (enemies[i].alive)
+        {
+            std::cout << i << ") " << enemies[i].name << '\n';
+            std::cout << "(HP: " << enemies[i].hp << ")\n";
+            std::cout << "(SP: " << enemies[i].sp << ")\n";            
+        }
     }
-    if (enemies[2].alive)
-    {
-        std::cout << "3) " << enemies[2].name << '\n';
-        std::cout << "(HP: " << enemies[2].hp << ")\n";
-    }
-    if (enemies[3].alive)
-    {
-        std::cout << "4) " << enemies[3].name << '\n';
-        std::cout << "(HP: " << enemies[3].hp << ")\n";
-    }
-    std::cout << '\n';
 }
 void playerTurn(mainCharacter &mc, ally allies[], enemy enemies[], items itemList[])
 {
@@ -629,9 +607,10 @@ void skillTarget(mainCharacter &mc, enemy enemies[], bool &validSel, ally allies
     while (!validSel)
     {
         std::cout << "[Skills]\n";
+        std::cout << "[Current SP: " << mc.hp << "]\n";
         for (int i = 0; i < mc.skillsHeld; i++)
         {
-            std::cout << i + 1 << ") " << mc.skills[i].name << '\n';
+            std::cout << i + 1 << ") " << mc.skills[i].name << " (SP Cost: " << mc.skills[i].spCost << ")\n";
             backPos = i + 1;
         }
         std::cout << "(" << backPos + 1 << " <-- Back\n";
@@ -640,77 +619,80 @@ void skillTarget(mainCharacter &mc, enemy enemies[], bool &validSel, ally allies
         {
             std::cout << "You don't have enough sp!\n";
         }
-        if (selection == backPos + 1)
+        else if (selection == backPos + 1)
         {
             return; // Go back to previous menu
         }
-        std::cout << "[TARGET]\n";
-        std::cout << "1) " << enemies[0].name << '\n';
-        std::cout << "(HP: " << enemies[0].hp << ")\n";
-        if (enemies[1].alive)
+        else
         {
-            std::cout << "2) " << enemies[1].name << '\n';
-            std::cout << "(HP: " << enemies[1].hp << ")\n";
-        }
-        if (enemies[2].alive)
-        {
-            std::cout << "3) " << enemies[2].name << '\n';
-            std::cout << "(HP: " << enemies[2].hp << ")\n";
-        }
-        if (enemies[3].alive)
-        {
-            std::cout << "4) " << enemies[3].name << '\n';
-            std::cout << "(HP: " << enemies[3].hp << ")\n";
-        }
-        std::cout << "5) [Back]\n";
-
-        std::cout << "Which enemy would you like to target?\n";
-        std::cin >> skillSelection;
-
-        switch (skillSelection)
-        {
-        case 1:
-            playerSkill(mc.skills[selection - 1], mc, enemies[0], enemies, allies, itemList);
-            validSel = true;
-            break;
-        case 2:
+            std::cout << "[TARGET]\n";
+            std::cout << "1) " << enemies[0].name << '\n';
+            std::cout << "(HP: " << enemies[0].hp << ")\n";
             if (enemies[1].alive)
             {
-                playerSkill(mc.skills[selection - 1], mc, enemies[1], enemies, allies, itemList);
-                validSel = true;
+                std::cout << "2) " << enemies[1].name << '\n';
+                std::cout << "(HP: " << enemies[1].hp << ")\n";
             }
-            else
-            {
-                std::cout << "Invalid selection!\n";
-            }
-            break;
-        case 3:
             if (enemies[2].alive)
             {
-                playerSkill(mc.skills[selection - 1], mc, enemies[2], enemies, allies, itemList);
-                validSel = true;
+                std::cout << "3) " << enemies[2].name << '\n';
+                std::cout << "(HP: " << enemies[2].hp << ")\n";
             }
-            else
-            {
-                std::cout << "Invalid selection!\n";
-            }
-            break;
-        case 4:
             if (enemies[3].alive)
             {
-                playerSkill(mc.skills[selection - 1], mc, enemies[3], enemies, allies, itemList);
-                validSel = true;
+                std::cout << "4) " << enemies[3].name << '\n';
+                std::cout << "(HP: " << enemies[3].hp << ")\n";
             }
-            else
+            std::cout << "5) [Back]\n";
+
+            std::cout << "Which enemy would you like to target?\n";
+            std::cin >> skillSelection;
+
+            switch (skillSelection)
             {
-                std::cout << "Invalid selection!\n";
+            case 1:
+                playerSkill(mc.skills[selection - 1], mc, enemies[0], enemies, allies, itemList);
+                validSel = true;
+                break;
+            case 2:
+                if (enemies[1].alive)
+                {
+                    playerSkill(mc.skills[selection - 1], mc, enemies[1], enemies, allies, itemList);
+                    validSel = true;
+                }
+                else
+                {
+                    std::cout << "Invalid selection!\n";
+                }
+                break;
+            case 3:
+                if (enemies[2].alive)
+                {
+                    playerSkill(mc.skills[selection - 1], mc, enemies[2], enemies, allies, itemList);
+                    validSel = true;
+                }
+                else
+                {
+                    std::cout << "Invalid selection!\n";
+                }
+                break;
+            case 4:
+                if (enemies[3].alive)
+                {
+                    playerSkill(mc.skills[selection - 1], mc, enemies[3], enemies, allies, itemList);
+                    validSel = true;
+                }
+                else
+                {
+                    std::cout << "Invalid selection!\n";
+                }
+                break;
+            case 5:
+                return;
+            default:
+                std::cerr << "Invalid selection!\n";
+                break;
             }
-            break;
-        case 5:
-            return;
-        default:
-            std::cerr << "Invalid selection!\n";
-            break;
         }
     }
 }
